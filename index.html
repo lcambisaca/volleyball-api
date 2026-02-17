@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volleyball AI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 350px;
+        }
+        h1 { color: #2c3e50; margin-bottom: 0.5rem; }
+        p { color: #7f8c8d; margin-bottom: 1.5rem; }
+        
+        .upload-btn {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+            margin-bottom: 1rem;
+            transition: 0.3s;
+        }
+        .upload-btn:hover { background: #2980b9; }
+        
+        #preview {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        #result {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #27ae60;
+            min-height: 1.5rem;
+        }
+
+        /* Hide the ugly default file input */
+        input[type="file"] { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Volleyball AI 🏐</h1>
+    <p>Upload a move to analyze it.</p>
+
+    <label for="fileInput" class="upload-btn">
+        Choose Image
+    </label>
+    <input type="file" id="fileInput" accept="image/*" onchange="previewImage()">
+
+    <br>
+    <img id="preview" src="#" alt="Image Preview">
+    
+    <button onclick="predict()" class="upload-btn" style="background-color: #27ae60; margin-top: 10px;">
+        Analyze Move
+    </button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    // 1. Show the uploaded image on screen
+    function previewImage() {
+        const file = document.getElementById('fileInput').files[0];
+        const preview = document.getElementById('preview');
+        const reader = new FileReader();
+
+        reader.onloadend = function() {
+            preview.src = reader.result;
+            preview.style.display = 'block';
+        }
+
+        if (file) {
+            reader.readAsDataURL(file);
+            document.getElementById('result').innerText = ""; // Clear old result
+        }
+    }
+
+    // 2. Send image to your API
+    async function predict() {
+        const fileInput = document.getElementById('fileInput');
+        const resultText = document.getElementById('result');
+
+        if (fileInput.files.length === 0) {
+            alert("Please select an image first!");
+            return;
+        }
+
+        resultText.innerText = "Analyzing...";
+        resultText.style.color = "#7f8c8d";
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        try {
+            // This calls YOUR python code!
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            resultText.innerText = data.prediction;
+            resultText.style.color = "#27ae60";
+        } catch (error) {
+            console.error('Error:', error);
+            resultText.innerText = "Error analyzing image";
+            resultText.style.color = "red";
+        }
+    }
+</script>
+
+</body>
+</html>
