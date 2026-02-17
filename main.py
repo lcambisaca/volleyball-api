@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File
 import torch
 import torch.nn as nn
 from torchvision import transforms
+from fastapi.responses import FileResponse # <--- NEW IMPORT
 from PIL import Image
 import io
 
@@ -96,3 +97,4 @@ async def get_prediction(file: UploadFile = File(...)):
     except Exception as e:
 
         return {"error": str(e)}
+
