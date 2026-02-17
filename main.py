@@ -75,6 +75,12 @@ def transform_image(image_bytes):
     ])
     image = Image.open(io.BytesIO(image_bytes))
     return my_transforms(image).unsqueeze(0)
+
+# This tells FastAPI: "When someone visits the home page, send them the UI"
+@app.get("/")
+async def read_index():
+    return FileResponse('index.html')
+
    # 5. The API Endpoint
 @app.post("/predict")
 async def get_prediction(file: UploadFile = File(...)):
@@ -88,4 +94,5 @@ async def get_prediction(file: UploadFile = File(...)):
         prediction = class_names[predicted.item()]
         return {"prediction": prediction}
     except Exception as e:
+
         return {"error": str(e)}
